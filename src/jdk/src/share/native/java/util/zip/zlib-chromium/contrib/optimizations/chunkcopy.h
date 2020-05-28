@@ -29,7 +29,11 @@
 #include <arm_neon.h>
 typedef uint8x16_t z_vec128i_t;
 #elif defined(INFLATE_CHUNK_SIMD_SSE2)
+#if defined _M_AMD64
+#include <intrin.h>
+#else
 #include <emmintrin.h>
+#endif
 typedef __m128i z_vec128i_t;
 #else
 #error chunkcopy.h inflate chunk SIMD is not defined for your build target

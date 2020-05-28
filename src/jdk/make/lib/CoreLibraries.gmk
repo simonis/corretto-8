@@ -289,12 +289,18 @@ ifeq ($(USE_ZLIB_CHROMIUM), true)
           -DCRC32_SIMD_SSE42_PCLMUL -msse4.2 -mpclmul
     endif
   endif
+  ifeq ($(OPENJDK_TARGET_OS), windows)
+    ifeq ($(OPENJDK_TARGET_CPU), x86_64)
+      # Availability of SSE4.2/PCLMUL will be checked at runtime in 'java/util/zip/dispatch.c'
+      ZLIB_CHROMIUM_CFLAGS := -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2 \
+          -DCRC32_SIMD_SSE42_PCLMUL -DX86_WINDOWS -Dinline=__inline
+    endif
+  endif
 
   $(eval $(call SetupNativeCompilation,BUILD_ZLIB_CHROMIUM_STATIC, \
       STATIC_LIBRARY := zlib-chromium, \
       OUTPUT_DIR := $(JDK_OUTPUTDIR)/objs/zlib-chromium, \
-      SRC := $(JDK_TOPDIR)/src/share/native/java/util/zip/zlib-chromium \
-          $(JDK_TOPDIR)/src/share/native/java/util/zip/zlib-chromium, \
+      SRC := $(JDK_TOPDIR)/src/share/native/java/util/zip/zlib-chromium, \
       LANG := C, \
       OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) \
