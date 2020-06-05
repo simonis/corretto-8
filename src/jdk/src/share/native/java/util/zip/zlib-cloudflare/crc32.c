@@ -21,6 +21,8 @@
   DYNAMIC_CRC_TABLE and MAKECRCH can be #defined to write out crc32.h.
  */
 
+#include "zutil.h"      /* for STDC and FAR definitions */
+
 #ifdef __aarch64__
 
 #include <arm_neon.h>
@@ -28,7 +30,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-uint32_t crc32(uint32_t crc, uint8_t *buf, size_t len) {
+uLong crc32(uLong crc, const Bytef *buf, uInt len) {
     crc = ~crc;
 
     while (len >= 8) {
@@ -60,8 +62,6 @@ uint32_t crc32(uint32_t crc, uint8_t *buf, size_t len) {
 #    define DYNAMIC_CRC_TABLE
 #  endif /* !DYNAMIC_CRC_TABLE */
 #endif /* MAKECRCH */
-
-#include "zutil.h"      /* for STDC and FAR definitions */
 
 #define local static
 

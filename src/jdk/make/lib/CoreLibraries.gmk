@@ -257,6 +257,10 @@ ifeq ($(USE_ZLIB_CLOUDFLARE), true)
       # Availability of SSE4.2/PCLMUL will be checked at runtime in 'java/util/zip/dispatch.c'
       ZLIB_CLOUDFLARE_CFLAGS := -mpclmul -DHAS_SSE42 -msse4.2
     endif
+    ifeq ($(OPENJDK_TARGET_CPU), aarch64)
+      # Availability of NEON/CRC support will be checked at runtime in 'libzip/dispatch.c'
+      ZLIB_CLOUDFLARE_CFLAGS := -march=armv8-a+crc
+    endif
   endif
 
   $(eval $(call SetupNativeCompilation,BUILD_ZLIB_CLOUDFLARE_STATIC, \
@@ -285,15 +289,21 @@ ifeq ($(USE_ZLIB_CHROMIUM), true)
   ifeq ($(OPENJDK_TARGET_OS), linux)
     ifeq ($(OPENJDK_TARGET_CPU), x86_64)
       # Availability of SSE4.2/PCLMUL will be checked at runtime in 'java/util/zip/dispatch.c'
-      ZLIB_CHROMIUM_CFLAGS := -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2 \
-          -DCRC32_SIMD_SSE42_PCLMUL -msse4.2 -mpclmul
+      ZLIB_CHROMIUM_CFLAGS := -DX86_NOT_WINDOWS -msse4.2 -mpclmul \
+          -DCRC32_SIMD_SSE42_PCLMUL -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2
+    endif
+    ifeq ($(OPENJDK_TARGET_CPU), aarch64)
+      # Availability of NEON/CRC support will be checked at runtime in 'libzip/dispatch.c'
+      ZLIB_CHROMIUM_CFLAGS := -DARMV8_OS_LINUX -march=armv8-a+crc \
+          -DCRC32_ARMV8_CRC32 -DADLER32_SIMD_NEON -DINFLATE_CHUNK_SIMD_NEON
+      ZLIB_CHROMIUM_EXCLUDES := crc_folding.c fill_window_sse.c
     endif
   endif
   ifeq ($(OPENJDK_TARGET_OS), windows)
     ifeq ($(OPENJDK_TARGET_CPU), x86_64)
       # Availability of SSE4.2/PCLMUL will be checked at runtime in 'java/util/zip/dispatch.c'
-      ZLIB_CHROMIUM_CFLAGS := -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2 \
-          -DCRC32_SIMD_SSE42_PCLMUL -DX86_WINDOWS -Dinline=__inline
+      ZLIB_CHROMIUM_CFLAGS := -DX86_WINDOWS -Dinline=__inline \
+          -DCRC32_SIMD_SSE42_PCLMUL -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2
     endif
   endif
 
@@ -301,12 +311,12 @@ ifeq ($(USE_ZLIB_CHROMIUM), true)
       STATIC_LIBRARY := zlib-chromium, \
       OUTPUT_DIR := $(JDK_OUTPUTDIR)/objs/zlib-chromium, \
       SRC := $(JDK_TOPDIR)/src/share/native/java/util/zip/zlib-chromium, \
+      EXCLUDE_FILES := $(ZLIB_CHROMIUM_EXCLUDES), \
       LANG := C, \
       OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) \
           -I$(JDK_TOPDIR)/src/share/native/java/util/zip/zlib-chromium \
           -DINFLATE_CHUNK_READ_64LE -DUNALIGNED_OK $(ZLIB_CHROMIUM_CFLAGS), \
-      CFLAGS_posix := -DX86_NOT_WINDOWS, \
       ARFLAGS := $(ARFLAGS), \
       OBJECT_DIR := $(JDK_OUTPUTDIR)/objs/zlib-chromium, \
       DEBUG_SYMBOLS := $(DEBUG_ALL_BINARIES)))

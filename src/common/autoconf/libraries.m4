@@ -999,17 +999,23 @@ AC_DEFUN_ONCE([LIB_SETUP_MISC_LIBS],
   ZLIB_VARIANT_CHROMIUM=`$ECHO "$ZLIB_VARIANTS" | $SED -e '/,chromium,/!s/.*/false/g' -e '/,chromium,/s/.*/true/g'`
 
   if test "x$ZLIB_VARIANT_CLOUDFLARE" == xtrue; then
-    if { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; } && test "$OPENJDK_TARGET_CPU" = "x86_64"; then
+    if { test "x$OPENJDK_TARGET_CPU" = "xx86_64" &&
+         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; };
+       } ||
+       { test "x$OPENJDK_TARGET_CPU" = "xaarch64" && test "x$OPENJDK_TARGET_OS" = xlinux; }; then
       USE_ZLIB_CLOUDFLARE=true
     else
-      AC_MSG_ERROR([zlib variant 'cloudflare' currently only supported on Linux/Windows/x86_64])
+      AC_MSG_ERROR([zlib variant 'cloudflare' currently only supported on Linux/Windows/x86_64 & Linux/aarch64])
     fi
   fi
   if test "x$ZLIB_VARIANT_CHROMIUM" == xtrue; then
-    if { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; } && test "$OPENJDK_TARGET_CPU" = "x86_64"; then
+    if { test "x$OPENJDK_TARGET_CPU" = "xx86_64" &&
+         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; };
+       } ||
+       { test "x$OPENJDK_TARGET_CPU" = "xaarch64" && test "x$OPENJDK_TARGET_OS" = xlinux; }; then
       USE_ZLIB_CHROMIUM=true
     else
-      AC_MSG_ERROR([zlib variant 'chromium' currently only supported on Linux/Windows/x86_64])
+      AC_MSG_ERROR([zlib variant 'chromium' currently only supported on Linux/Windows/x86_64 & Linux/aarch64])
     fi
   fi
   AC_MSG_RESULT([$with_additional_zlib])

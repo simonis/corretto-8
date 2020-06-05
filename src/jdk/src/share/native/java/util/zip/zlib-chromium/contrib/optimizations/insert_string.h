@@ -29,12 +29,15 @@
   #if defined(__clang__)
     #undef TARGET_CPU_WITH_CRC
     #define __crc32cw __builtin_arm_crc32cw
+  #elif defined(__GNUC__)
+    #undef TARGET_CPU_WITH_CRC
+    #include <arm_acle.h>
   #endif
 
   #define _cpu_crc32_u32 __crc32cw
 
   #if defined(__aarch64__)
-    #define TARGET_CPU_WITH_CRC __attribute__((target("crc")))
+    #define TARGET_CPU_WITH_CRC __attribute__((target("+crc")))
   #else  // !defined(__aarch64__)
     #define TARGET_CPU_WITH_CRC __attribute__((target("armv8-a,crc")))
   #endif  // defined(__aarch64__)

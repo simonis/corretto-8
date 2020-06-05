@@ -39,11 +39,15 @@
 
 #if defined(ZLIB_CLOUDFLARE) || defined(ZLIB_CHROMIUM)
 
-#if defined (__linux__)
+#if defined (__linux__) && defined (__x86_64__)
 #include <cpuid.h>
-#endif
-#if defined (_MSC_VER)
+#elif defined (__linux__) && defined (__aarch64__)
+#include <asm/hwcap.h>
+#include <sys/auxv.h>
+#elif defined (_MSC_VER)
 #include <intrin.h>
+#else
+#error CPU detection not implemented for your platform
 #endif
 
 /* Simple check for SSE4.2 & PCLMUL support on Linux/Windows. */
@@ -52,8 +56,11 @@ static int cpu_supported() {
     int regs[4];
 #if defined (_MSC_VER)
     __cpuid(regs, 1);
-#elif defined (__linux__)
+#elif defined (__linux__) && defined (__x86_64__)
     __cpuid(1, regs[0], regs[1], regs[2], regs[3]);
+#elif defined (__linux__) && defined (__aarch64__)
+    unsigned long features = getauxval(AT_HWCAP);
+    return (features & HWCAP_CRC32) && (features & HWCAP_PMULL);
 #else
     return 0;
 #endif
