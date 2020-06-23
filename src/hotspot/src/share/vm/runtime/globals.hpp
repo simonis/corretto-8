@@ -3994,31 +3994,6 @@ class CommandLineFlags {
           "Allocation less than this value will be allocated "              \
           "using malloc. Larger allocations will use mmap.")                \
                                                                             \
-  product(ccstr, ZlibImplementation, "bundled",                             \
-          "Zlib implementation. One of \"bundled\", \"system\" or"          \
-          "\"cloudflare\". If the JDK was configured with "                 \
-          "\"--with-zlib=system\", \"bundled\" and \"system\" will be the " \
-          "same. \"cloudflare\" is only available if the JDK was "          \
-          "configured with \"--with-extra-zlib=cloudflare\".")              \
-                                                                            \
-  product(ccstr, ZlibImplementationInflate, "bundled",                      \
-          "Zlib Inflate implementation. One of \"bundled\", \"system\", "   \
-          "\"cloudflare\" or \"chromium\". If the JDK was configured with " \
-          "\"--with-zlib=system\", \"bundled\" and \"system\" will be the " \
-          "same. \"cloudflare\" is only available if the JDK was "          \
-          "configured with \"--with-extra-zlib=cloudflare\". "              \
-          "\"chromium\" is only available if the JDK was configured "       \
-          "with \"--with-extra-zlib=chromium\".")                           \
-                                                                            \
-  product(ccstr, ZlibImplementationDeflate, "bundled",                      \
-          "Zlib deflate implementation. One of \"bundled\", \"system\", "   \
-          "\"cloudflare\" or \"chromium\". If the JDK was configured with " \
-          "\"--with-zlib=system\", \"bundled\" and \"system\" will be the " \
-          "same. \"cloudflare\" is only available if the JDK was "          \
-          "configured with \"--with-extra-zlib=cloudflare\". "              \
-          "\"chromium\" is only available if the JDK was configured "       \
-          "with \"--with-extra-zlib=chromium\".")                           \
-                                                                            \
   product(bool, EnableTracing, false,                                       \
           "Enable event-based tracing")                                     \
                                                                             \
