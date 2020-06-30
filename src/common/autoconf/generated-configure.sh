@@ -4411,7 +4411,7 @@ VS_SDK_PLATFORM_NAME_2017=
 #CUSTOM_AUTOCONF_INCLUDE
 
 # Do not change or remove the following line, it is needed for consistency checks:
-DATE_WHEN_GENERATED=1590660394
+DATE_WHEN_GENERATED=1593529580
 
 ###############################################################################
 #
@@ -40649,7 +40649,12 @@ $as_echo "$tool_specified" >&6; }
     # When linking, how to specify the to be created dynamically linkable library.
     LD_OUT_OPTION='-o$(SPACE)'
     # When archiving, how to specify the to be create static archive for object files.
-    AR_OUT_OPTION='rcs$(SPACE)'
+    if test "x$OPENJDK_TARGET_OS" = xmacosx; then
+      # For MacOS X, the '-r' is already contained in 'ARFLAGS'
+      AR_OUT_OPTION='-cs$(SPACE)'
+    else
+      AR_OUT_OPTION='rcs$(SPACE)'
+    fi
   fi
 
 
@@ -48764,22 +48769,22 @@ fi
 
   if test "x$ZLIB_VARIANT_CLOUDFLARE" == xtrue; then
     if { test "x$OPENJDK_TARGET_CPU" = "xx86_64" &&
-         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; };
+         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; };
        } ||
        { test "x$OPENJDK_TARGET_CPU" = "xaarch64" && test "x$OPENJDK_TARGET_OS" = xlinux; }; then
       USE_ZLIB_CLOUDFLARE=true
     else
-      as_fn_error $? "zlib variant 'cloudflare' currently only supported on Linux/Windows/x86_64 & Linux/aarch64" "$LINENO" 5
+      as_fn_error $? "zlib variant 'cloudflare' currently only supported on Linux/MacOSX/Windows/x86_64 & Linux/aarch64" "$LINENO" 5
     fi
   fi
   if test "x$ZLIB_VARIANT_CHROMIUM" == xtrue; then
     if { test "x$OPENJDK_TARGET_CPU" = "xx86_64" &&
-         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows; };
+         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; };
        } ||
        { test "x$OPENJDK_TARGET_CPU" = "xaarch64" && test "x$OPENJDK_TARGET_OS" = xlinux; }; then
       USE_ZLIB_CHROMIUM=true
     else
-      as_fn_error $? "zlib variant 'chromium' currently only supported on Linux/Windows/x86_64 & Linux/aarch64" "$LINENO" 5
+      as_fn_error $? "zlib variant 'chromium' currently only supported on Linux/MacOSX/Windows/x86_64 & Linux/aarch64" "$LINENO" 5
     fi
   fi
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_additional_zlib" >&5

@@ -39,7 +39,7 @@
 
 #if defined(ZLIB_CLOUDFLARE) || defined(ZLIB_CHROMIUM)
 
-#if defined (__linux__) && defined (__x86_64__)
+#if (defined (__linux__) || defined(MACOSX)) && defined (__x86_64__)
 #include <cpuid.h>
 #elif defined (__linux__) && defined (__aarch64__)
 #include <asm/hwcap.h>
@@ -56,7 +56,7 @@ static int cpu_supported() {
     int regs[4];
 #if defined (_MSC_VER)
     __cpuid(regs, 1);
-#elif defined (__linux__) && defined (__x86_64__)
+#elif (defined (__linux__) || defined(MACOSX)) && defined (__x86_64__)
     __cpuid(1, regs[0], regs[1], regs[2], regs[3]);
 #elif defined (__linux__) && defined (__aarch64__)
     unsigned long features = getauxval(AT_HWCAP);

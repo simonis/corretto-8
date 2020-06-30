@@ -262,6 +262,12 @@ ifeq ($(USE_ZLIB_CLOUDFLARE), true)
       ZLIB_CLOUDFLARE_CFLAGS := -march=armv8-a+crc
     endif
   endif
+  ifeq ($(OPENJDK_TARGET_OS), macosx)
+    ifeq ($(OPENJDK_TARGET_CPU), x86_64)
+      # Availability of SSE4.2/PCLMUL will be checked at runtime in 'libzip/dispatch.c'
+      ZLIB_CLOUDFLARE_CFLAGS := -mpclmul -DHAS_SSE42 -msse4.2
+    endif
+  endif
 
   $(eval $(call SetupNativeCompilation,BUILD_ZLIB_CLOUDFLARE_STATIC, \
       STATIC_LIBRARY := zlib-cloudflare, \
@@ -271,6 +277,7 @@ ifeq ($(USE_ZLIB_CLOUDFLARE), true)
       OPTIMIZATION := HIGH, \
       CFLAGS := $(CFLAGS_JDKLIB) $(ZLIB_CLOUDFLARE_CFLAGS), \
       CFLAGS_posix := -UDEBUG, \
+      CFLAGS_macosx := -DZ_HAVE_UNISTD_H, \
       ARFLAGS := $(ARFLAGS), \
       OBJECT_DIR := $(JDK_OUTPUTDIR)/objs/zlib-cloudflare, \
       DEBUG_SYMBOLS := $(DEBUG_ALL_BINARIES)))
@@ -303,6 +310,13 @@ ifeq ($(USE_ZLIB_CHROMIUM), true)
     ifeq ($(OPENJDK_TARGET_CPU), x86_64)
       # Availability of SSE4.2/PCLMUL will be checked at runtime in 'java/util/zip/dispatch.c'
       ZLIB_CHROMIUM_CFLAGS := -DX86_WINDOWS -Dinline=__inline \
+          -DCRC32_SIMD_SSE42_PCLMUL -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2
+    endif
+  endif
+  ifeq ($(OPENJDK_TARGET_OS), macosx)
+    ifeq ($(OPENJDK_TARGET_CPU), x86_64)
+      # Availability of SSE4.2/PCLMUL will be checked at runtime in 'libzip/dispatch.c'
+      ZLIB_CHROMIUM_CFLAGS := -DX86_NOT_WINDOWS -msse4.2 -mpclmul \
           -DCRC32_SIMD_SSE42_PCLMUL -DADLER32_SIMD_SSSE3 -DINFLATE_CHUNK_SIMD_SSE2
     endif
   endif
@@ -375,7 +389,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBZIP, \
     LDFLAGS_SUFFIX_linux := -ljvm -ljava -ldl $(LIBZ) $(ZLIB_CLOUDFLARE) $(ZLIB_CHROMIUM), \
     LDFLAGS_SUFFIX_solaris := -ljvm -ljava $(LIBZ) -lc, \
     LDFLAGS_SUFFIX_aix := -ljvm -ljava $(LIBZ),\
-    LDFLAGS_SUFFIX_macosx := $(LIBZ) -ljava -ljvm, \
+    LDFLAGS_SUFFIX_macosx := $(LIBZ) $(ZLIB_CLOUDFLARE) $(ZLIB_CHROMIUM) -ljava -ljvm, \
     VERSIONINFO_RESOURCE := $(JDK_TOPDIR)/src/windows/resource/version.rc, \
     RC_FLAGS := $(RC_FLAGS) \
         -D "JDK_FNAME=zip.dll" \
