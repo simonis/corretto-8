@@ -2005,7 +2005,7 @@ Optional Packages:
   --with-zlib             use zlib from build system or OpenJDK source
                           (system, bundled) [bundled]
   --with-additional-zlib  bundle additional zlib versions
-                          (cloudflare,chromium) []
+                          (cloudflare,chromium,none) [<platform dependent>]
   --with-stdc++lib=<static>,<dynamic>,<default>
                           force linking of the C++ runtime on Linux to either
                           static or dynamic, default is static with dynamic as
@@ -4411,7 +4411,7 @@ VS_SDK_PLATFORM_NAME_2017=
 #CUSTOM_AUTOCONF_INCLUDE
 
 # Do not change or remove the following line, it is needed for consistency checks:
-DATE_WHEN_GENERATED=1593529580
+DATE_WHEN_GENERATED=1593544532
 
 ###############################################################################
 #
@@ -48757,11 +48757,21 @@ fi
   USE_ZLIB_CLOUDFLARE=false
   USE_ZLIB_CHROMIUM=false
 
+  # If user didn't specify, include ZLIB_CLOUDFLARE/ZLIB_CHROMIUM on all supported platforms
+  if test "x${with_additional_zlib}" = "x"; then
+    if { test "x$OPENJDK_TARGET_CPU" = "xx86_64" &&
+         { test "x$OPENJDK_TARGET_OS" = xlinux || test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; };
+       } ||
+       { test "x$OPENJDK_TARGET_CPU" = "xaarch64" && test "x$OPENJDK_TARGET_OS" = xlinux; }; then
+      with_additional_zlib="cloudflare,chromium"
+    fi
+  fi
+
   ZLIB_VARIANTS=",$with_additional_zlib,"
-  TEST_ZLIB_VARIANTS=`$ECHO "$ZLIB_VARIANTS" | $SED -e 's/cloudflare,//' -e 's/chromium,//'`
+  TEST_ZLIB_VARIANTS=`$ECHO "$ZLIB_VARIANTS" | $SED -e 's/cloudflare,//' -e 's/chromium,//' -e 's/none,//'`
 
   if test "x$with_additional_zlib" != x && test "x$TEST_ZLIB_VARIANTS" != "x,"; then
-    as_fn_error $? "The available, additional zlib variants are: cloudflare, chromium" "$LINENO" 5
+    as_fn_error $? "The available, additional zlib variants are: cloudflare, chromium, none" "$LINENO" 5
   fi
 
   ZLIB_VARIANT_CLOUDFLARE=`$ECHO "$ZLIB_VARIANTS" | $SED -e '/,cloudflare,/!s/.*/false/g' -e '/,cloudflare,/s/.*/true/g'`
